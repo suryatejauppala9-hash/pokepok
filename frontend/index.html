@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PokéGuru</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─────────────────────────────────────────
+       RESET & TOKENS
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #000000;
+      --white:   #ffffff;
+      --g50:     #f7f7f7;
+      --g100:    #eeeeee;
+      --g200:    #d4d4d4;
+      --g400:    #999999;
+      --g600:    #555555;
+      --g800:    #222222;
+      --g900:    #111111;
+      --radius-sm: 12px;
+      --radius:    20px;
+      --radius-lg: 28px;
+      --gap: 12px;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--g50);
+      color: var(--black);
+      min-height: 100vh;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─────────────────────────────────────────
+       BENTO GRID WRAPPER
+    ───────────────────────────────────────── */
+    .bento-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    /* ─────────────────────────────────────────
+       BASE CARD
+    ───────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px;
+      border: 1px solid var(--g100);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-dark {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--g800);
+    }
+
+    .card-muted {
+      background: var(--g50);
+      border-color: var(--g100);
+    }
+
+    /* ─────────────────────────────────────────
+       ROW HELPER
+    ───────────────────────────────────────── */
+    .row {
+      display: grid;
+      gap: var(--gap);
+    }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+    .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .row-1-2 { grid-template-columns: 1fr 2fr; }
+    .row-2-1 { grid-template-columns: 2fr 1fr; }
+
+    /* ─────────────────────────────────────────
+       HERO / HEADER CARD
+    ───────────────────────────────────────── */
+    .hero-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 32px 36px;
+    }
+
+    .hero-left { display: flex; align-items: center; gap: 20px; }
+
+    .hero-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--black);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .hero-sub {
+      font-size: 0.85rem;
+      color: var(--g400);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .badge-outline {
+      border: 1.5px solid var(--g200);
+      color: var(--g600);
+    }
+    .badge-solid {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    /* ─────────────────────────────────────────
+       INPUT CARD
+    ───────────────────────────────────────── */
+    .input-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--g400);
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--g50);
+      border: 1.5px solid var(--g100);
+      border-radius: var(--radius-sm);
+      color: var(--black);
+      padding: 16px 18px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      resize: none;
+      min-height: 110px;
+      line-height: 1.6;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: var(--black); background: var(--white); }
+    textarea::placeholder { color: var(--g400); }
+
+    /* ─────────────────────────────────────────
+       EXAMPLE CHIPS
+    ───────────────────────────────────────── */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 100px;
+      border: 1.5px solid var(--g200);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--g600);
+      background: var(--white);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    /* ─────────────────────────────────────────
+       SELECT / CONTROLS
+    ───────────────────────────────────────── */
+    select {
+      width: 100%;
+      background: var(--g50);
+      border: 1.5px solid var(--g100);
+      border-radius: var(--radius-sm);
+      color: var(--black);
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      transition: border-color 0.15s;
+    }
+    select:focus { border-color: var(--black); background-color: var(--white); }
+    select option { background: var(--white); }
+
+    /* ─────────────────────────────────────────
+       GROQ KEY INPUT
+    ───────────────────────────────────────── */
+    .key-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--g50);
+      border: 1.5px solid var(--g100);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .key-icon { font-size: 1rem; flex-shrink: 0; }
+    .key-row input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--black);
+      font-size: 0.85rem;
+      font-family: 'Inter', monospace;
+      outline: none;
+    }
+    .key-row input::placeholder { color: var(--g400); }
+
+    /* ─────────────────────────────────────────
+       SUBMIT BUTTON
+    ───────────────────────────────────────── */
+    .btn-ask {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .btn-ask:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .btn-ask:active:not(:disabled) { transform: translateY(0); }
+    .btn-ask:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ─────────────────────────────────────────
+       STAT MINI CARD (inside hero area)
+    ───────────────────────────────────────── */
+    .stat-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-mini {
+      background: var(--g50);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--g100);
+    }
+    .stat-mini-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .stat-mini-label {
+      font-size: 0.72rem;
+      color: var(--g400);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────
+       LOADING STATE
+    ───────────────────────────────────────── */
+    .loading-card {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 56px;
+      text-align: center;
+    }
+    .loading-card.active { display: flex; }
+
+    .loader-ring {
+      width: 52px;
+      height: 52px;
+      border: 3px solid var(--g100);
+      border-top-color: var(--black);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+    .loading-steps li {
+      font-size: 0.85rem;
+      color: var(--g400);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.2s;
+    }
+    .loading-steps li.active { color: var(--black); font-weight: 600; }
+    .loading-steps li.done { color: var(--g600); }
+    .loading-steps li.done .step-icon::after { content: '✓'; }
+    .step-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--g200);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    li.active .step-dot { background: var(--black); }
+    li.done  .step-dot { background: var(--g400); }
+
+    /* ─────────────────────────────────────────
+       RESULTS
+    ───────────────────────────────────────── */
+    #results { display: none; }
+    #results.visible { display: flex; flex-direction: column; gap: var(--gap); }
+
+    /* translation banner */
+    .translation-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: var(--g50);
+      border: 1px solid var(--g100);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--g600);
+    }
+    .translation-arrow { color: var(--g400); font-size: 0.75rem; }
+
+    /* ─────────────────────────────────────────
+       POKEMON TEAM GRID
+    ───────────────────────────────────────── */
+    .team-bento {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: var(--gap);
+    }
+
+    .poke-card {
+      background: var(--white);
+      border: 1.5px solid var(--g100);
+      border-radius: var(--radius);
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.15s, transform 0.15s;
+      cursor: default;
+    }
+    .poke-card:hover {
+      border-color: var(--black);
+      transform: translateY(-3px);
+    }
+
+    /* faint number watermark */
+    .poke-num {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--g100);
+      letter-spacing: 0.05em;
+    }
+
+    .poke-img {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      filter: grayscale(100%);
+      transition: filter 0.2s, transform 0.2s;
+    }
+    .poke-card:hover .poke-img { filter: grayscale(0%); transform: scale(1.08); }
+
+    .poke-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: capitalize;
+      letter-spacing: -0.01em;
+    }
+
+    .type-pills { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+    .type-pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 100px;
+      border: 1.5px solid var(--g200);
+      color: var(--g600);
+      background: var(--g50);
+    }
+
+    /* stat bars */
+    .stat-stack { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+    .stat-line { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; }
+    .stat-key { width: 32px; color: var(--g400); font-weight: 600; flex-shrink: 0; }
+    .stat-track { flex: 1; height: 3px; background: var(--g100); border-radius: 2px; }
+    .stat-fill { height: 100%; border-radius: 2px; background: var(--black); transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .stat-num { width: 26px; text-align: right; color: var(--g600); font-weight: 500; }
+
+    /* ─────────────────────────────────────────
+       ANALYSIS BENTO
+    ───────────────────────────────────────── */
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--g400);
+      margin-bottom: 14px;
+    }
+
+    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1.5px solid var(--g200);
+      color: var(--g800);
+      background: var(--white);
+      text-transform: capitalize;
+    }
+    .pill-danger {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+    .pill-warn {
+      background: var(--g100);
+      border-color: var(--g200);
+      color: var(--g800);
+    }
+    .pill-good {
+      border-color: var(--black);
+      color: var(--black);
+    }
+
+    /* big number */
+    .big-num {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       ADVICE CARD
+    ───────────────────────────────────────── */
+    .oak-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--g100);
+    }
+    .oak-avatar {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--black);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .oak-name { font-size: 0.9rem; font-weight: 700; }
+    .oak-role { font-size: 0.75rem; color: var(--g400); margin-top: 1px; }
+
+    .tab-row { display: flex; gap: 6px; margin-bottom: 16px; }
+    .tab {
+      padding: 7px 16px;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--g200);
+      color: var(--g600);
+      background: var(--white);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .tab.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    .advice-body {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--g800);
+      white-space: pre-wrap;
+    }
+    .advice-body strong { color: var(--black); font-weight: 700; }
+
+    /* ─────────────────────────────────────────
+       ERROR
+    ───────────────────────────────────────── */
+    .error-card {
+      padding: 20px 24px;
+      background: var(--g50);
+      border: 1.5px solid var(--g200);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      color: var(--g800);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ─────────────────────────────────────────
+       FOOTER STRIP
+    ───────────────────────────────────────── */
+    .footer-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      border: 1px solid var(--g100);
+      font-size: 0.75rem;
+      color: var(--g400);
+    }
+    .footer-strip span { font-weight: 500; }
+    .footer-dots { display: flex; gap: 5px; }
+    .footer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g200); }
+    .footer-dot.live { background: var(--black); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .row-2, .row-3, .row-1-2, .row-2-1 { grid-template-columns: 1fr; }
+      .hero-card { flex-direction: column; align-items: flex-start; }
+      .big-num { font-size: 2.5rem; }
+    }
+
+    /* ─────────────────────────────────────────
+       SCROLLBAR
+    ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--g200); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="bento-page">
+
+  <!-- ── HERO ROW ── -->
+  <div class="row row-2-1">
+
+    <!-- Title Card -->
+    <div class="card hero-card">
+      <div class="hero-left">
+        <div class="hero-icon">🎓</div>
+        <div>
+          <div class="hero-title">PokéGuru</div>
+          <div class="hero-sub">AI Pokémon Mentor · Speaks your language</div>
+        </div>
+      </div>
+      <div class="hero-badge">
+        <span class="badge badge-outline">Sarvam AI</span>
+        <span class="badge badge-solid">Prof. Oak</span>
+      </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="card">
+      <div class="section-title">Pipeline</div>
+      <div class="stat-mini-grid">
+        <div class="stat-mini">
+          <div class="stat-mini-val">22</div>
+          <div class="stat-mini-label">Languages</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">898</div>
+          <div class="stat-mini-label">Pokémon</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">18</div>
+          <div class="stat-mini-label">Types</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">AI</div>
+          <div class="stat-mini-label">Reasoning</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── INPUT ROW ── -->
+  <div class="row row-2-1">
+
+    <!-- Main Input -->
+    <div class="card">
+      <div class="input-label">Your Question</div>
+      <textarea id="userMessage"
+        placeholder="నా టీమ్లో Charizard, Pikachu, Gengar ఉన్నాయి. ఇంకేమి పెట్టాలి?
+
+My team has Charizard, Pikachu, Gengar. What should I add?"></textarea>
+      <div class="chips" style="margin-top:12px;">
+        <span class="chip" onclick="setEx('te')">Telugu</span>
+        <span class="chip" onclick="setEx('hi')">Hindi</span>
+        <span class="chip" onclick="setEx('ta')">Tamil</span>
+        <span class="chip" onclick="setEx('en')">English</span>
+        <span class="chip" onclick="setEx('starter')">Starters</span>
+        <span class="chip" onclick="setEx('competitive')">Competitive</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card" style="display:flex;flex-direction:column;gap:16px;">
+
+      <div>
+        <div class="input-label">Response Language</div>
+        <select id="langSelect">
+          <option value="auto">Auto-detect</option>
+          <option value="te" selected>తెలుగు — Telugu</option>
+          <option value="hi">हिंदी — Hindi</option>
+          <option value="ta">தமிழ் — Tamil</option>
+          <option value="kn">ಕನ್ನಡ — Kannada</option>
+          <option value="ml">മലയാളം — Malayalam</option>
+          <option value="mr">मराठी — Marathi</option>
+          <option value="bn">বাংলা — Bengali</option>
+          <option value="gu">ગુજરાતી — Gujarati</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="input-label">Play Level</div>
+        <select id="levelSelect">
+          <option value="beginner">Beginner — Fun & Easy</option>
+          <option value="competitive">Competitive — Advanced</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="input-label">Groq API Key <span style="color:var(--g400);font-weight:400;text-transform:none;letter-spacing:0">(optional · LLM reasoning)</span></div>
+        <div class="key-row">
+          <span class="key-icon">🔑</span>
+          <input type="password" id="groqKey" placeholder="gsk_... console.groq.com"/>
+        </div>
+      </div>
+
+      <button class="btn-ask" id="submitBtn" onclick="ask()">
+        Ask Professor Oak →
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div class="card loading-card" id="loadingCard">
+    <div class="loader-ring"></div>
+    <ul class="loading-steps" id="steps">
+      <li id="s1"><span class="step-dot"></span> Translating via Sarvam AI</li>
+      <li id="s2"><span class="step-dot"></span> Detecting Pokémon intent</li>
+      <li id="s3"><span class="step-dot"></span> Fetching from PokéAPI</li>
+      <li id="s4"><span class="step-dot"></span> Professor Oak reasoning</li>
+      <li id="s5"><span class="step-dot"></span> Translating response</li>
+    </ul>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="results">
+
+    <!-- translation note -->
+    <div id="transNote" class="translation-row" style="display:none;">
+      <span style="font-size:0.85rem;">🌐</span>
+      <span id="transText"></span>
+    </div>
+
+    <!-- Team + Type Coverage row -->
+    <div class="row row-2-1" id="teamAnalysisRow">
+
+      <!-- Team -->
+      <div class="card">
+        <div class="section-title">Your Team</div>
+        <div class="team-bento" id="teamGrid"></div>
+      </div>
+
+      <!-- Analysis -->
+      <div style="display:flex;flex-direction:column;gap:var(--gap);">
+
+        <!-- weakness counter -->
+        <div class="card card-dark" id="weaknessCountCard">
+          <div class="section-title" style="color:var(--g600);">Severe Weaknesses</div>
+          <div class="big-num" id="severeCount">0</div>
+          <div style="margin-top:6px;font-size:0.8rem;color:var(--g600);">types to worry about</div>
+        </div>
+
+        <!-- coverage -->
+        <div class="card">
+          <div class="section-title">Coverage</div>
+          <div class="pill-group" id="coveragePills"></div>
+        </div>
+
+        <!-- weaknesses -->
+        <div class="card card-muted">
+          <div class="section-title">Weaknesses</div>
+          <div class="pill-group" id="weaknessPills"></div>
+        </div>
+
+        <!-- recommendations -->
+        <div class="card">
+          <div class="section-title">Add These Types</div>
+          <div class="pill-group" id="recPills"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Professor Oak Advice -->
+    <div class="card" id="adviceCard">
+      <div class="oak-row">
+        <div class="oak-avatar">👴</div>
+        <div>
+          <div class="oak-name">Professor Oak</div>
+          <div class="oak-role">Pokémon Research Laboratory, Pallet Town</div>
+        </div>
+        <div style="margin-left:auto;">
+          <div class="tab-row">
+            <button class="tab active" onclick="swTab('native')" id="tabN">Your Language</button>
+            <button class="tab" onclick="swTab('english')" id="tabE">English</button>
+          </div>
+        </div>
+      </div>
+      <div class="advice-body" id="advN"></div>
+      <div class="advice-body" id="advE" style="display:none;"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-strip">
+    <span>PokéGuru · AI Pokémon Mentor</span>
+    <div class="footer-dots">
+      <div class="footer-dot live" title="Server live"></div>
+      <div class="footer-dot"></div>
+      <div class="footer-dot"></div>
+    </div>
+    <span>localhost:8000</span>
+  </div>
+
+</div><!-- /bento-page -->
+
+<script>
+const API = window.location.origin;
+
+const EXAMPLES = {
+  te:          "నా టీమ్లో Charizard, Pikachu, Gengar ఉన్నాయి. ఇంకేమి పెట్టాలి?",
+  hi:          "मेरी टीम में Charizard, Pikachu, Gengar हैं। मुझे और क्या जोड़ना चाहिए?",
+  ta:          "என் டீமில் Charizard, Pikachu, Gengar உள்ளனர். இன்னும் என்ன சேர்க்க வேண்டும்?",
+  en:          "My team has Charizard, Pikachu, and Gengar. What should I add for better balance?",
+  starter:     "My team has Bulbasaur, Charmander, Squirtle. Help me build a complete team!",
+  competitive: "I have Garchomp, Toxapex, Landorus, Clefable. What do I need to complete my competitive team?",
+};
+
+function setEx(k) {
+  document.getElementById('userMessage').value = EXAMPLES[k];
+  const map = { te:'te', hi:'hi', ta:'ta', en:'en' };
+  if (map[k]) document.getElementById('langSelect').value = map[k];
+  if (k === 'competitive') document.getElementById('levelSelect').value = 'competitive';
+}
+
+function swTab(t) {
+  document.getElementById('advN').style.display = t === 'native'  ? 'block' : 'none';
+  document.getElementById('advE').style.display = t === 'english' ? 'block' : 'none';
+  document.getElementById('tabN').className = 'tab' + (t === 'native'  ? ' active' : '');
+  document.getElementById('tabE').className = 'tab' + (t === 'english' ? ' active' : '');
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('s' + i);
+    el.className = i < n ? 'done' : i === n ? 'active' : '';
+  }
+}
+
+function statColor(v) {
+  if (v >= 120) return '#000';
+  if (v >= 80)  return '#555';
+  return '#aaa';
+}
+
+function renderPokeCard(m) {
+  const statAbbr = { hp:'HP', attack:'Atk', defense:'Def', 'special-attack':'SpA', 'special-defense':'SpD', speed:'Spe' };
+  const typePills = m.types.map(t => `<span class="type-pill">${t}</span>`).join('');
+  const statBars  = Object.entries(m.stats).map(([k,v]) => {
+    const pct = Math.min(100, Math.round(v/255*100));
+    return `<div class="stat-line">
+      <span class="stat-key">${statAbbr[k]||k}</span>
+      <div class="stat-track"><div class="stat-fill" style="width:0%;background:${statColor(v)}" data-w="${pct}%"></div></div>
+      <span class="stat-num">${v}</span>
+    </div>`;
+  }).join('');
+  const dexNum = String(m.id || '').padStart(3, '0');
+  return `
+    <div class="poke-card">
+      <span class="poke-num">#${dexNum}</span>
+      <img class="poke-img" src="${m.official_art||m.sprite||''}"
+           alt="${m.name}" onerror="this.src='${m.sprite||''}'"/>
+      <div class="poke-name">${m.name}</div>
+      <div class="type-pills">${typePills}</div>
+      <div class="stat-stack">${statBars}</div>
+    </div>`;
+}
+
+function fmt(txt) {
+  return txt
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
+
+async function ask() {
+  const msg = document.getElementById('userMessage').value.trim();
+  if (!msg) return;
+
+  const lang     = document.getElementById('langSelect').value;
+  const level    = document.getElementById('levelSelect').value;
+  const groqKey  = document.getElementById('groqKey').value.trim();
+
+  document.getElementById('loadingCard').classList.add('active');
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('submitBtn').disabled = true;
+  setStep(1);
+
+  try {
+    await sleep(300); setStep(2);
+    await sleep(200); setStep(3);
+
+    const res = await fetch(`${API}/api/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(groqKey ? {'X-Groq-Key': groqKey} : {}) },
+      body: JSON.stringify({ message: msg, language: lang, level, groq_key: groqKey || null }),
+    });
+
+    setStep(4); await sleep(150);
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({detail:'Server error'}));
+      throw new Error(e.detail || 'Server error');
+    }
+    const d = await res.json();
+    setStep(5); await sleep(300);
+
+    document.getElementById('loadingCard').classList.remove('active');
+
+    // Translation note
+    const tn = document.getElementById('transNote');
+    if (d.translated_input && d.translated_input !== d.original) {
+      tn.style.display = 'flex';
+      document.getElementById('transText').textContent =
+        `Translated: "${d.translated_input}"`;
+    } else {
+      tn.style.display = 'none';
+    }
+
+    // Team grid
+    const details = d.team_analysis.pokemon_details || [];
+    document.getElementById('teamGrid').innerHTML =
+      details.length ? details.map(renderPokeCard).join('') :
+      '<p style="color:var(--g400);font-size:0.9rem;">No Pokémon detected</p>';
+
+    // Animate stat bars
+    setTimeout(() => {
+      document.querySelectorAll('.stat-fill').forEach(b => b.style.width = b.dataset.w);
+    }, 80);
+
+    // Analysis
+    const a = d.team_analysis;
+    document.getElementById('severeCount').textContent = (a.severe_weaknesses||[]).length;
+
+    document.getElementById('coveragePills').innerHTML =
+      (a.types_covered||[]).map(t => `<span class="pill">${t}</span>`).join('');
+
+    document.getElementById('weaknessPills').innerHTML = [
+      ...(a.severe_weaknesses||[]).map(t => `<span class="pill pill-danger">${t} ×4</span>`),
+      ...(a.moderate_weaknesses||[]).map(t => `<span class="pill pill-warn">${t} ×2</span>`),
+    ].join('') || '<span style="color:var(--g400);font-size:0.85rem;">None detected</span>';
+
+    document.getElementById('recPills').innerHTML =
+      (a.recommended_types||[]).slice(0,6).map(t => `<span class="pill pill-good">${t}</span>`).join('');
+
+    // Advice
+    document.getElementById('advN').innerHTML = fmt(d.advice_native || d.advice_english);
+    document.getElementById('advE').innerHTML = fmt(d.advice_english);
+    swTab('native');
+
+    // Show results
+    document.getElementById('results').style.display = '';
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('adviceCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(err) {
+    document.getElementById('loadingCard').classList.remove('active');
+    document.getElementById('results').style.display = '';
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('teamGrid').innerHTML =
+      `<div class="error-card">⚠ ${err.message}</div>`;
+    document.getElementById('severeCount').textContent = '—';
+    document.getElementById('coveragePills').innerHTML = '';
+    document.getElementById('weaknessPills').innerHTML = '';
+    document.getElementById('recPills').innerHTML = '';
+    document.getElementById('advN').innerHTML = '';
+    document.getElementById('advE').innerHTML = '';
+  } finally {
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('userMessage').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) ask();
+  });
+});
+</script>
+</body>
+</html>
